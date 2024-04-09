@@ -1,4 +1,4 @@
-# Exercices d'algorithmique et programmation sur l'algèbre de Bool
+# Exercices d'algorithmique et programmation sur l'algèbre de Boole
 
 ## Exercice 1 :
 
