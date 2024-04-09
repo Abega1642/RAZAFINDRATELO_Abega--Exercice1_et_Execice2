@@ -23,19 +23,8 @@ Algorithme table_de_verite_et_forme_canonique_fonction_logique
 		FinPour
 		Retourne result
 	Fin
-	Fonction zip(valeur1: Tableau, valeur2: Tableau) : Tableau
-    Variables
-        resultat: Tableau
-        longueur_min: Entier
-        i: Entier
-    Début
-        resultat <- Tableau Vide
-        longueur_min <- Min(longueur(valeur1), longueur(valeur2))
-        Pour i de 0 à longueur_min - 1 Faire
-            Ajouter (valeur1[i], valeur2[i]) à resultat
-        FinPour
-        Retourner resultat
-    Fin
+	
+
 
 	Fonction split(string: chaine de caractère, separator: chaine de caractère) : chaine de caractère
 	Variables
@@ -85,6 +74,20 @@ Algorithme table_de_verite_et_forme_canonique_fonction_logique
 		FinPour
 		Retourne slice(result, 0, longeur(result) - 1)
 	Fin
+	
+	Fonction zip(valeur1: Tableau de Chaine de Caractères, valeur2: Tableau de Chaine de Caractères) : Tableau de Chaine de Caractères
+    Variables
+        resultat: Tableau de Chaine de Caractères
+        longueur_min: Entier
+        i: Entier
+    Début
+        resultat <- Tableau Vide
+        longueur_min <- Min(longueur(valeur1), longueur(valeur2))
+        Pour i de 0 à longueur_min - 1 Faire
+            Ajouter join(split(valeur1[i], ''), split(valeur2[i], '')) à resultat
+        FinPour
+        Retourner resultat
+    Fin
 	
 	Fonction negation_form(expression: Chaine de caractère): Chaine de caractère
 	Début
