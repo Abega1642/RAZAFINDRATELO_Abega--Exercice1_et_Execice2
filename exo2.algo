@@ -1,0 +1,217 @@
+Algorithme tableau_de_karnaugh
+
+	Fonction slice(string: chaine de caractère, start : entier, end : entier): chaine de caractère
+	Variables 
+		result : chaine de caractère
+	Début
+		result <-- ""
+		Pour i <-- start à end
+			result <-- result + string[i]
+		FinPour
+		Retourne result
+	Fin
+
+	Fonction split(string: chaine de caractère, separator: chaine de caractère) : chaine de caractère
+	Variables
+		Tableau result() : chaine de caractère
+		char : chaine de caractère
+		separator_counter : entier
+		occurence : entier
+	Début
+	separator_counter <-- 0
+	
+		Pour j <-- 0 à longeur(string)
+			Si string[j] = separator Alors
+				separator_counter <-- separator_counter + 1
+			FinSi
+		FinPour
+		
+	Tableau result(longeur(string) div separator_counter)
+	char <-- ''
+	occurence <-- 0
+	
+		Pour i <-- 0 à longeur(string)
+			Si string[i] <> separator Alors
+				char <-- char + string[i]
+			FinSi
+			Si string[i] = separator et occurence < separator_counter alors
+				occurence <-- occurence + 1
+				result[longeur(result)] <-- char
+				char <-- ''
+			FinSin
+			Si string[i] = separator et occurence = separator_counter alors
+				result[longeur(result)] <-- slice(string, i + 1, longeur(string))
+			FinSi
+		FinPour
+		Retourne result
+	Fin
+	
+	Fonction join(array : Tableau de entier, separator: chaine de caractère): chaine de caractère
+	Variables
+		result : chaine de caractère
+	Début
+		result <-- ''
+		Pour i <-- 0 à longeur(array)
+			result <-- array[i] + separator
+			Si i = longeur(array) alors
+				result <-- result + array[i]
+			FinSi
+		FinPour
+		Retourne slice(result, 0, longeur(result) - 1)
+	Fin
+	
+	Fonction zip(valeur1: Tableau de Chaine de Caractères, valeur2: Tableau de Chaine de Caractères) : Tableau de Chaine de Caractères
+    Variables
+        resultat: Tableau de Chaine de Caractères
+        longueur_min: Entier
+        i: Entier
+    Début
+        resultat <- Tableau Vide
+        longueur_min <- Min(longueur(valeur1), longueur(valeur2))
+        Pour i de 0 à longueur_min - 1 Faire
+            Ajouter join(split(valeur1[i], ''), split(valeur2[i], '')) à resultat
+        FinPour
+        Retourner resultat
+    Fin
+	
+	
+Fonction fonction_logique(*variables: Tableau de Booléen) : Booléen
+    Retourne (variables[0] ET variables[1]) OU (variables[0] ET variables[2]) OU (NON variables[1] ET (NON variables[2])) OU variables[3]
+Fin
+
+Algorithme valeur_booléenne(val: Booléen) : Entier
+    Si val = Faux Alors
+        Retourner 0
+    Sinon
+        Retourner 1
+    FinSi
+Fin
+
+Fonction forme_négation(expression: Chaine de Caractère) : chaine de Caractère
+    Variables
+        expression: Tableau de Chaine de Caractère
+        i: Entier
+        e: Chaine de Caractère
+    Début
+        expression <- split(expression, "*")
+        Pour chaque e dans expression Faire
+            Si longueur(e) = 1 Alors
+                e <- "not " + e
+            Sinon
+                e <- slice(e, 0, longueur(e) - 2)
+            FinSi
+        FinPour
+        Retourner join(expression, " + ")
+    Fin
+
+Fonction code_gray(a: Tableau de Chaine de Caractère) : Tableau de chaine de Caractère
+    Variables
+        half_length_of_a: entier
+        a: Tableau de chaine de Caractère
+    Début
+        a <- concaténer(a, reversed(a))
+        half_length_of_a <- longueur(a) div 2
+        a <- concaténer(sous_tableau(a, 0, half_length_of_a), [concaténer("0", element) pour chaque element dans sous_tableau(a, 0, half_length_of_a)]) + sous_tableau(a, half_length_of_a, longueur(a))
+        a <- sous_tableau(a, 0, half_length_of_a) + [concaténer("1", element) pour chaque element dans sous_tableau(a, half_length_of_a, longueur(a))]
+        Retourner a
+    Fin
+
+Algorithme code_gray_possible(n: Entier) : Tableau de Chaine de Caractère
+    Variables
+        single: Tableau de Chaine de Caractère
+        result: Tableau de Chaine de Caractère
+        i: Entier
+    Début
+        Si n = 1 Alors
+            Retourner ('0', '1')
+        Sinon
+            single <- ('0', '1')
+            result <- code_gray(single)
+            Pour i de 3 à n Faire
+                result <- code_gray(result)
+            FinPour
+        FinSi
+        Retourner result
+    Fin
+
+Fonction transform_into_tuple(n: Entier) : Tableau de Tableau de Entier
+    Variables
+        result: Tableau de Tableau de Entier
+        single: Tableau de Chaine de Caractère
+        i, j: Entier
+    Début
+        result <- []
+        single <- code_gray_possible(n)
+        Pour chaque element dans single Faire
+            result.ajouter([entier(e) pour chaque e dans element])
+        FinPour
+        Retourner result
+    Fin
+
+Fonction valeurs_possibles(n: Entier, q: Entier) : Tableau de Tableau de Entier
+    Variables
+        first: Tableau de Tableau de Entier
+        second: Tableau de Tableau de Entier
+        result: Tableau de Tableau de Entier
+        i, j: Entier
+    Début
+        first <- transform_into_tuple(q)
+        result <- []
+        Pour i de 0 à longueur(first) - 1 Faire
+            second <- transform_into_tuple(n)
+            Pour j de 0 à longueur(second) - 1 Faire
+                second[j] <- second[j] + first[i]
+            FinPour
+            result.ajouter(second)
+        FinPour
+        Retourner [element pour chaque sous_tableau dans result pour chaque element dans sous_tableau]
+    Fin
+
+Fonction valeur_fonction_logique(logical_function, n, q) : Tableau de Booléen
+    Variables
+        result: Tableau de Booléen
+        values: Tableau de Entier
+        i: Entier
+    Début
+        result <- []
+        Pour chaque values dans valeurs_possibles(n, q) Faire
+            result.ajouter(valeur_booléenne(fonction_logique(values)))
+        FinPour
+        Retourner result
+    Fin
+
+Fonction k_table_matrix(n, q) : Tableau de Booléen
+    Variables
+        k_table: Tableau de Booléen
+        subdivisions: Entier
+        i: Entier
+    Début
+        k_table <- valeur_fonction_logique(fonction_logique, n, q)
+        subdivisions <- longueur(k_table) div longueur(code_gray_possible(q))
+        k_table <- [k_table[i:i+subdivisions] pour chaque i de 0 à longueur(k_table) - 1 par subdivisions]
+        Retourner k_table
+    Fin
+
+Fonction karnaugh_table(n, q) : chaine de Caractère
+    Variables
+        k_table_array: Tableau de Booléen
+        letters, letters1: Chaine de Caractère
+        header, underline: Chaine de Caractère
+        subdivisions: Entier
+        parts: Tableau de Tableau de Booléen
+        i: Entier
+    Début
+        k_table_array <- valeur_fonction_logique(fonction_logique, n, q)
+        k_table_array <- [chaine(e) pour chaque e dans k_table_array]
+        letters <- chaine_alpha(n)
+        letters1 <- chaine_alpha(q)
+        header <- join(code_gray_possible(n), " | ")
+        underline <- répéter('=', longueur(header) + 2)
+        Ecrire(concaténer(letters, "     ", header))
+        Ecrire(concaténer(letters1, "   || ", underline))
+        subdivisions <- longueur(k_table_array) div longueur(code_gray_possible(q))
+        parts <- [k_table_array[i:i+subdivisions] pour chaque i de 0 à longueur(k_table_array) - 1 par subdivisions]
+        Pour chaque value, parts dans zip(code_gray_possible(q), parts) Faire
+            Ecrire(concaténer(value, "   || ", join(parts, "  | ")))
+        FinPour
+    Fin
