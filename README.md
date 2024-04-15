@@ -16,6 +16,7 @@ Ensuite, il vous demandera de nommer un par un vos variables (par exemple : a, b
     ...
 
 Le programme va ensuite vous demander de faire enter l'expression de votre fonction logique en respectant les syntaxes tels que ``not`` ou ``not_``, ``and`` et ``or``
+
 ``Attention !: un espace après chaque variable ou connectuer logique``
 Exemple :
 
