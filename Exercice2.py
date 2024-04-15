@@ -1,14 +1,13 @@
-import string
-
-#You can change this logical function in order to test it with other logical functions
-def logical_function(*variables):
-    return (variables[0] and variables[1]) or (variables[0] and variables[2]) or (not variables[1] and (not variables[2])) or variables[3]
+import re
 
 def booleanValue(val) :
     if val == False :
         return 0
     else : 
         return 1
+    
+def assign_variables(variables, values):
+    return {var: val for var, val in zip(variables, values)}
 
 def negation_form(expression) :
     expression = expression.split("*")
@@ -37,6 +36,7 @@ def transform_into_tuple(n):
     for i in range(0, len(result)):
         result[i] = tuple(int(e) for e in tuple(result[i]))
     return result
+
 def possible_values(n, q) :
     first = transform_into_tuple(q)
     result = []
@@ -48,28 +48,56 @@ def possible_values(n, q) :
         result.append(second)
     return [element for sous_tableau in result for element in sous_tableau]
 
-def boolean_value_of_the_LogicalFunction(logical_function, n, q):  
+def logical_function_boolean_value(logical_function_input, variables):
+    for var, val in variables.items():
+        logical_function_input = re.sub(r'\bnot_{}\b'.format(re.escape(var)), 'not {}'.format(var), logical_function_input)
+        logical_function_input = re.sub(r'\bnot\s+{}'.format(re.escape(var)), 'not {}'.format(var), logical_function_input)
+        logical_function_input = re.sub(r'\b{}\b'.format(re.escape(var)), str(val), logical_function_input)
+    return booleanValue(eval(logical_function_input))
+
+def boolean_value_of_the_LogicalFunction(logical_function_input,variables, n, q):  
     result = []
     for values in possible_values(n, q):
-        result.append(booleanValue(logical_function(*values)))
+        result.append(booleanValue(logical_function_boolean_value(logical_function_input,assign_variables(variables, values))))
     return result
 
-def k_table_matrix(n, q):
+def k_table_matrix(logical_function,n, q):
     k_table = boolean_value_of_the_LogicalFunction(logical_function, n, q)
     subdivisions = len(k_table) // len(possible_code_Gray(q))
     k_table = [k_table[i:i+subdivisions] for i in range(0, len(k_table), subdivisions)]
     return k_table
 
-def karnaugh_table(n,q):
-    k_table_array = boolean_value_of_the_LogicalFunction(logical_function, n, q)
+def karnaugh_table():
+    
+    variables_number = int(input("\nHow many variables is your function ?  → "))
+
+    variables = []
+    for i in range(variables_number):
+        nom_variable = input(f"Please, enter the variable name for the variable number {i+1}: ").strip()
+        variables.append(nom_variable)
+    
+    logical_function_input = input(f"Please enter your logical function. ('not' or 'not_' : negation, 'and', 'or')\n\t==> f({",".join(variables)}) = ")
+
+    
+    if variables_number == 2 :
+        n = 1
+        q = 1
+    else :
+        n = int(input("Please, enter the number of variable in the horizontal line of the karnaugh table : → "))
+        q = variables_number - n
+    
+    k_table_array = boolean_value_of_the_LogicalFunction(logical_function_input,variables, n, q)
     k_table_array = [str(e) for e in k_table_array]
-    letters = string.ascii_lowercase[:n]
-    letters1 = string.ascii_lowercase[n :n + q]
+    
+    letters = ''.join(variables[:n])
+    letters1 = ''.join(variables[n :variables_number])
     header = ' | '.join([val for val in possible_code_Gray(n)])
-    underline = '=' * (len(header) + 2)
+    underline = '=' * (len(header) + 1)
     print(f'{letters}     {header}')
     print(f'{letters1}   || {underline}')
     subdivisions = len(k_table_array) // len(possible_code_Gray(q))
     parts = [k_table_array[i:i+subdivisions] for i in range(0, len(k_table_array), subdivisions)]
     for value, parts in zip(possible_code_Gray(q), parts):
-        print(f"{value}   || {'  | '.join(parts)}")
+        print(f"{value}   || {'  |  '.join(parts)}")
+
+karnaugh_table()
