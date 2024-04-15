@@ -1,201 +1,115 @@
-Algorithme table_de_verite_et_forme_canonique_fonction_logique
-	Fonction booleanValue(val: Boléenne): Entier
-	Début
-		si val = faux alors
-			Retourne 0
-		sinon
-			Retourne 1
-		FinSi
-	Fin
-	
-	Fonction logical_function(variable1 : Booléen, variable2 : Booléen, variable3 : Booléen, variable4 : Booléen) : Booléen
-	Début
-		Retourne (variable1 ET variable2) OU (variable1 ET variable3) OU (NON variable2 ET (NON variable3)) OU variable4
-	Fin
-	
-	Fonction slice(string: chaine de caractère, start : entier, end : entier): chaine de caractère
-	Variables 
-		result : chaine de caractère
-	Début
-		result <-- ""
-		Pour i <-- start à end
-			result <-- result + string[i]
-		FinPour
-		Retourne result
-	Fin
-	
+Algorithme table_of_truth_and_cannonic_form
 
+Fonction booleanValue(val: booléen) -> entier
+    Si val est Faux alors
+        Retourner 0
+    Sinon
+        Retourner 1
+    Fin Si
+Fin Fonction
 
-	Fonction split(string: chaine de caractère, separator: chaine de caractère) : chaine de caractère
-	Variables
-		Tableau result() : chaine de caractère
-		char : chaine de caractère
-		separator_counter : entier
-		occurence : entier
-	Début
-	separator_counter <-- 0
-	
-		Pour j <-- 0 à longeur(string)
-			Si string[j] = separator Alors
-				separator_counter <-- separator_counter + 1
-			FinSi
-		FinPour
-		
-	Tableau result(longeur(string) div separator_counter)
-	char <-- ''
-	occurence <-- 0
-	
-		Pour i <-- 0 à longeur(string)
-			Si string[i] <> separator Alors
-				char <-- char + string[i]
-			FinSi
-			Si string[i] = separator et occurence < separator_counter alors
-				occurence <-- occurence + 1
-				result[longeur(result)] <-- char
-				char <-- ''
-			FinSin
-			Si string[i] = separator et occurence = separator_counter alors
-				result[longeur(result)] <-- slice(string, i + 1, longeur(string))
-			FinSi
-		FinPour
-		Retourne result
-	Fin
-	
-	Fonction join(array : Tableau de entier, separator: chaine de caractère): chaine de caractère
-	Variables
-		result : chaine de caractère
-	Début
-		result <-- ''
-		Pour i <-- 0 à longeur(array)
-			result <-- array[i] + separator
-			Si i = longeur(array) alors
-				result <-- result + array[i]
-			FinSi
-		FinPour
-		Retourne slice(result, 0, longeur(result) - 1)
-	Fin
-	
-	Fonction zip(valeur1: Tableau de Chaine de Caractères, valeur2: Tableau de Chaine de Caractères) : Tableau de Chaine de Caractères
+Fonction assign_variables(variables: tableau de chaines, values: tableau de booléens) -> dictionnaire
+    Retourner {var: val pour var, val dans zip(variables, values)}
+Fin Fonction
+
+Fonction valeur_booleenne_fonction_logique(expression_fonction_logique: chaine de caractères, variables: dictionnaire) -> entier
+    Pour chaque var, val dans variables faire
+        expression_fonction_logique <- remplacer(expression_fonction_logique, regex(r'\bnot_{}\b'.format(échapper(var))), 'not {}'.format(var))
+        expression_fonction_logique <- remplacer(expression_fonction_logique, regex(r'\bnot\s+{}'.format(échapper(var))), 'not {}'.format(var))
+        expression_fonction_logique <- remplacer(expression_fonction_logique, regex(r'\b{}\b'.format(échapper(var))), str(val))
+    Fin Pour
+    Retourner booleanValue(eval(expression_fonction_logique))
+Fin Fonction
+
+Fonction negation_form(expression: chaine de caractères) -> chaine de caractères
+    expression <- séparer(expression, "*")
+    expression <- [si longueur(e) == 1 alors "(not {e})" sinon e[longueur(e) - 2] pour chaque e dans expression]
+    Retourner joindre(expression, " + ")
+Fin Fonction
+
+Fonction first_canonic_form_function(values: tableau de booléens, result: tableau de chaines, variables: tableau de chaines)
     Variables
-        resultat: Tableau de Chaine de Caractères
-        longueur_min: Entier
-        i: Entier
+        expression: tableau de chaines
+        value: booléen
+        letter: chaine de caractères
     Début
-        resultat <- Tableau Vide
-        longueur_min <- Min(longueur(valeur1), longueur(valeur2))
-        Pour i de 0 à longueur_min - 1 Faire
-            Ajouter join(split(valeur1[i], ''), split(valeur2[i], '')) à resultat
-        FinPour
-        Retourner resultat
-    Fin
-	
-	Fonction negation_form(expression: Chaine de caractère): Chaine de caractère
-	Début
-	expression <-- split(expression, '*')
-		Pour i <-- 0 à longeur(expression)
-			Si longeur(expression[i]) = 1 alors
-				expression[i] <-- 'not '+ exression[i]
-			Sinon
-				expression[i] <-- expression[i][longeur(expression[i] - 2)
-			FinSi
-		FinPour
-		Retourne join(expression, ' + ')
-	Fin
-	
-	Fonction valeurs_possibles(nombre_variables)
+        expression <- tableau Vide
+        Pour chaque value, letter dans zip(values, variables) faire
+            Si value est égal à 0 alors
+                Ajouter "(not {letter})" à expression
+            Sinon
+                Ajouter letter à expression
+            Fin Si
+        Fin Pour
+        expression_str <- joindre(expression, "*")
+        Ajouter expression_str à result
+    Fin Fonction
+
+Fonction second_canonic_form_function(values: tableau de booléens, result: tableau de chaines, variables: tableau de chaines)
     Variables
-        valeurs: Tableau de Tableau de Entier
-        combinaison: Tableau de Entier
-        i: Entier
+        expression: tableau de chaines
+        value: booléen
+        letter: chaine de caractères
     Début
-        valeurs <- Tableau Vide
-        Pour i de 0 à 2^nombre_variables - 1 Faire
-            combinaison <- Tableau Vide
-            Pour j de 0 à nombre_variables - 1 Faire
-                Ajouter (i div 2^j) mod 2 à combinaison
-            FinPour
-            Ajouter combinaison à valeurs
-        FinPour
-        Retourner valeurs
-    Fin
+        expression <- tableau Vide
+        Pour chaque value, letter dans zip(values, variables) faire
+            Si value est égal à 0 alors
+                Ajouter "(not {letter})" à expression
+            Sinon
+                Ajouter letter à expression
+            Fin Si
+        Fin Pour
+        expression_str <- joindre(expression, "*")
+        expression_str <- negation_form(expression_str)
+        expression_str <- "[{expression_str}]"
+        Ajouter expression_str à result
+    Fin Fonction
 
-    Fonction forme_canonique_premiere(valeurs, resultat)
-        Variables
-            lettres: Chaine de Caractère
-            expression: Tableau de Chaine de Caractère
-            expression_str: Chaine de Caractère
-        Début
-            lettres <- lettre_minuscule[:longueur(valeurs)]
-            expression <- Tableau Vide
-            Pour chaque valeur, lettre dans zip(valeurs, lettres) Faire
-                Si valeur = 0 Alors
-                    Ajouter "non " + lettre à expression
-                Sinon
-                    Ajouter lettre à expression
-                FinSi
-            FinPour
-            expression_str <- join(expression, "*")
-            Ajouter expression_str à resultat
-        Fin
+Fonction possible_values(variables_number: entier) -> tableau de tableau de booléens
+    Retourner produire([1, 0], répéter=variables_number)
+Fin Fonction
 
-    Fonction forme_canonique_seconde(valeurs, resultat)
-        Variables
-            lettres: Chaine de Caractère
-            expression: Tableau de Chaine de Caractère
-            expression_str: Chaine de Caractère
-        Début
-            lettres <- lettre_minuscule[:longueur(valeurs)]
-            expression <- Tableau Vide
-            Pour chaque valeur, lettre dans zip(valeurs, lettres) Faire
-                Si valeur = 0 Alors
-                    Ajouter "non " + lettre à expression
-                Sinon
-                    Ajouter lettre à expression
-                FinSi
-            FinPour
-            expression_str <- join(expression, "*")
-            expression_str <- forme_negation(expression_str)
-            expression_str <- "[" + expression_str + "]"
-            Ajouter expression_str à resultat
-        Fin
+Fonction table_of_truth()
+    Variables
+        variables_number: entier
+        variables: tableau de chaines
+        logical_function_input: chaine de caractères
+        first_canonic_form: tableau de chaines
+        second_canonic_form: tableau de chaines
+        values: tableau de booléens
+        lines: chaine de caractères
+        boolean_value_of_the_function: entier
+        expression: chaine de caractères
+        expression_str: chaine de caractères
+    Début
+        variables_number <- demander_entier("\nCombien de variables votre fonction possède ? → ")
+        variables <- tableau Vide
+        Pour i de 0 à variables_number - 1 faire
+            nom_variable <- demander_chaine("Veuillez entrer le nom de la variable numéro {i+1}: ").supprimer_espaces()
+            Ajouter nom_variable à variables
+        Fin Pour
+        expression_fonction_logique <- demander_chaine("Veuillez entrer votre fonction logique. ('not' ou 'not_' : négation, 'and', 'or')\n\t==> f({joindre(variables, ",")}) = ")
+        Ecrire('\n\t==== TABLE DE VERITE ==== \n')
+        ligne_un <- joindre(["{i}" pour i dans variables] + [f({joindre(variables, ",")}) = {expression_fonction_logique}'], "  ||  ")  
+        Ecrire(ligne_un)
+        Ecrire("=" * longueur(ligne_un))
+        first_canonic_form <- tableau Vide
+        second_canonic_form <- tableau Vide
+        Pour chaque valeurs dans possible_values(variables_number) faire
+            lignes <- joindre([chaine(value) pour value dans valeurs], "  ||  ")
+            boolean_value_of_the_function <- booleanValue(valeur_booleenne_fonction_logique(expression_fonction_logique, assigner_variables(variables, valeurs)))
+            Si boolean_value_of_the_function est égal à 1 alors
+                first_canonic_form_function(valeurs, first_canonic_form, variables)   
+            Sinon
+                second_canonic_form_function(valeurs, second_canonic_form, variables)
+            Fin Si
+            Ecrire("{lignes}  ||         {boolean_value_of_the_function}")
+        Fin Pour
+        first_canonic_form <- joindre(first_canonic_form, " + ")
+        second_canonic_form <- joindre(second_canonic_form, " * ")
+        Ecrire(\n"==> La première forme canonique de la fonction logique est : f({joindre(variables, ",")}) = : {first_canonic_form}")
+        Ecrire(\n"==> La deuxième forme canonique de la fonction logique est : f({joindre(variables, ",")}) = : {second_canonic_form}\n")
 
-    Procédure table_de_verite(fonction_logique, nombre_variables)
-        Variables
-            premiere_forme_canonique: Tableau de chaine de caractère
-            seconde_forme_canonique: Tableau de chaine de caractère
-            valeurs: Tableau de chaine de caractère
-            Tableau ligne_one() : chaine de caractère
-            premiere_forme_canonique_str: chaine de caractère
-            seconde_forme_canonique_str: chaine de caractère
-			letter : chaine de caractère
-        Début
-			letter <-- 'abcdefghijklmnopqrstuvwxyz'
-            Écrire('\n\t==== TABLE OF TRUTH --- TABLE DE VERITE ==== \n')
-			Pour i <-- 0 à 25
-				ligine_one[longeur(ligne_one)] <-- letter[i]
-			ligine_one[longeur(ligne_one)] <-- "Logical function"
-			ligne_one <-- join(ligine_one, ' | ')
-            Écrire(ligne_un)
-            Écrire("-" * longueur(ligne_un))
-            
-            premiere_forme_canonique <-- Tableau Vide
-            seconde_forme_canonique <-- Tableau Vide
-            
-            Pour chaque valeur dans valeurs_possibles(nombre_variables) Faire
-                lignes <- "  |  ".joindre(str(valeur) pour valeur dans valeurs)
-                valeur_booleenne_fonction <-- valeur_booleenne(fonction_logique(*valeurs))
-                Si valeur_booleenne_fonction = 1 Alors
-                    forme_canonique_premiere(valeurs, premiere_forme_canonique)
-                Sinon
-                    forme_canonique_seconde(valeurs, seconde_forme_canonique)
-                FinSi
-                Écrire(lignes + "  |       " + chaine(valeur_booleenne_fonction))
-            FinPour
-            
-            premiere_forme_canonique_str <--  join(premiere_forme_canonique, " + ")
-            seconde_forme_canonique_str <-- join(seconde_forme_canonique, " * ")
-            
-            Écrire('\n==> The first canonic form of the logical function f is  : ' + premiere_forme_canonique_str)
-            Écrire('\n==> The second canonic form of the logical function f is  : ' + seconde_forme_canonique_str + '\n')
-        Fin
-	Fin
+Début
+	table_of_truth()
+Fin
