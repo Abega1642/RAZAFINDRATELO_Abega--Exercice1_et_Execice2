@@ -8,7 +8,7 @@ Le programme vous demandera d'abord le nombre de variable qui sera dans votre fo
 
     How many variables is your function ? →
 
-Ensuite, il vous demandera de nommer un par un vos variables (par exemple : a, b ou x, y ou x1, x2 ou v1,v2 ou var1,var2... comme vous vous voudrez)
+Ensuite, il vous demandera de nommer un par un vos variables (par exemple : a, b ou x, y ou x1, x2 ou v1,v2 ou var1,var2... comme vous voudrez)
 
     Please, enter the variable number 1: "le nom de votre variable"
     Please, enter the variable number 2: "le nom de votre variable"
